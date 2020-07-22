@@ -1,0 +1,40 @@
+---
+- name: Get current checks
+  delegate_to: "localhost"
+  nodeping:
+    action: get
+    token: "{{ nodeping_api_token }}"
+  register: retrieved_checks
+  run_once: yes
+  changed_when: no
+
+- name: Check if check for target is in place
+  delegate_to: "localhost"
+  set_fact:
+    result: "{{ retrieved_checks | json_query(query) }}"
+  loop: "{{ nodeping_checks }}"
+  vars:
+    query: "message.* | [?label==`{{ item.label }}`]._id"
+  register: check_in_place
+
+- name: Create or update NodePing checks for target host
+  delegate_to: localhost
+  nodeping:
+    action: "{{ (item.1.ansible_facts.result | length > 0 ) | ternary('update', 'create') }}"
+    checktype: "{{ item.0.type | default(item.0.username is defined | ternary('HTTPADV', 'HTTP')) }}"
+    checkid: "{{ (item.1.ansible_facts.result | length > 0 ) | ternary(item.1.ansible_facts.result | first, omit) }}"
+    target: "{{ item.0.target }}"
+    label: "{{ item.0.label }}"
+    username: "{{ item.0.username | default(omit) }}"
+    password: "{{ item.0.password | default(omit) }}"
+    port: "{{ item.0.port | default(omit) }}"
+    sendheaders:
+      Authorization: "{{ ('Basic ' + ((item.0.username + ':' +  item.0.password) | b64encode)) if (item.0.type is not defined and item.0.username is defined) else omit }}"
+    follow: yes
+    enabled: yes
+    interval: 5
+    token: "{{ nodeping_api_token }}"
+    notifications: "{{ nodeping_notifications }}"
+  with_together:
+    - "{{ nodeping_checks }}"
+    - "{{ check_in_place.results }}"
