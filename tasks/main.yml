@@ -16,13 +16,13 @@
   vars:
     query: "message.* | [?label==`{{ item.label }}`]._id"
   register: check_in_place
-  
+
 - name: Disable/Enable a check
   delegate_to: localhost
   nodeping:
     action: disable
     target: "{{ item.0.target }}"
-    enabled: "{{ item.0.enabled | default('yes') | bool }}"
+    enabled: "{{ nodeping_checks_enabled|bool }}"
     token: "{{ nodeping_api_token }}"
   when:
     - item.1.ansible_facts.result | length > 0
@@ -44,11 +44,11 @@
     sendheaders:
       Authorization: "{{ ('Basic ' + ((item.0.username + ':' +  item.0.password) | b64encode)) if (item.0.type is not defined and item.0.username is defined) else omit }}"
     follow: yes
-    enabled: "{{ item.0.enabled | default('yes') | bool }}"
+    enabled: yes
     interval: 5
     token: "{{ nodeping_api_token }}"
     notifications: "{{ nodeping_notifications }}"
-  when: item.0.enabled is not defined or item.0.enabled|bool
+  when: nodeping_checks_enabled|bool
   with_together:
     - "{{ nodeping_checks }}"
     - "{{ check_in_place.results }}"

@@ -1,3 +1,4 @@
 ---
 nodeping_checks: []
 nodeping_notifications: []
+nodeping_checks_enabled: yes
