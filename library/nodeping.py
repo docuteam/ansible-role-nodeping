@@ -327,6 +327,13 @@ EXAMPLES = """
   nodeping:
     action: delete
     checkid: 201205050153W2Q4C-0J2HSIRF
+
+# Disable a check
+- name: Disable this check based on its ID
+  nodeping:
+    action: disable
+    target: https://example.com
+    enabled: no
 """
 
 RETURN = """
@@ -351,6 +358,7 @@ try:
         update_checks,
         delete_checks,
         group_contacts,
+        disable_check,
     )
 except ImportError:
     NODEPING_IMPORT_ERROR = traceback.format_exc()
@@ -568,6 +576,22 @@ def delete_nodeping_check(parameters):
     else:
         return (False, checkid, result)
 
+def disable_nodeping_check(parameters):
+    """ Disables an existing check based on parameters passed in via Ansible
+    """
+
+    token = parameters["token"]
+    target = parameters["target"]
+    disable = not parameters["enabled"];
+
+    result = disable_check.disable_by_target(token, target, disable)
+
+    try:
+        result["error"]
+    except KeyError:
+        return (True, target, result)
+    else:
+        return (False, target, result)
 
 def convert_contacts(notification_contacts, token, customerid):
     """ Takes in a contact/group list and converts to the expected IDs
@@ -691,7 +715,7 @@ def run_module():
         label=dict(type="str", required=False),
         target=dict(type="str", required=False),
         action=dict(
-            type="str", required=True, choices=["get", "create", "update", "delete"]
+            type="str", required=True, choices=["get", "create", "update", "delete", "disable"]
         ),
         interval=dict(type="int", required=False, default=15),
         enabled=dict(type="bool", required=False, default=True),
@@ -808,6 +832,17 @@ def run_module():
         if not status:
             module.fail_json(
                 msg="Failed to delete checkid %s" % params["checkid"], **output
+            )
+
+    elif action == "disable":
+        if not params["target"]:
+            module.fail_json(msg="No target provided to disable a check")
+
+        status, label, output = disable_nodeping_check(params)
+
+        if not status:
+            module.fail_json(
+                msg="Failed to disable target %s" % params["target"], **output
             )
 
     # manipulate or modify the state as needed (this is going to be the
