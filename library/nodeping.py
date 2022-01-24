@@ -329,7 +329,7 @@ EXAMPLES = """
     checkid: 201205050153W2Q4C-0J2HSIRF
 
 # Disable a check
-- name: Disable this check based on its ID
+- name: Disable this check based on its target
   nodeping:
     action: disable
     target: https://example.com
