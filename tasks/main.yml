@@ -31,7 +31,7 @@
     action: "{{ (item.1.ansible_facts.result | length > 0 ) | ternary('update', 'create') }}"
     checktype: "{{ item.0.type | default(item.0.username is defined | ternary('HTTPADV', 'HTTP')) }}"
     checkid: "{{ (item.1.ansible_facts.result | length > 0 ) | ternary(item.1.ansible_facts.result | first, omit) }}"
-    target: "{{ item.0.target }}"
+    target: "{{ item.0.target | default(omit) }}"
     label: "{{ item.0.label }}"
     username: "{{ item.0.username | default(omit) }}"
     password: "{{ item.0.password | default(omit) }}"
@@ -41,9 +41,11 @@
     sens: "{{ item.0.sens | default(omit) }}"
     sendheaders:
       Authorization: "{{ ('Basic ' + ((item.0.username + ':' +  item.0.password) | b64encode)) if (item.0.type is not defined and item.0.username is defined) else omit }}"
-    follow: true
+    follow: "{{ 'true' if (item.0.type is not defined or item.0.type != 'PUSH' ) else omit }}"
     enabled: true
-    interval: 5
+    interval: "{{ item.0.interval | default(5) }}"
+    threshold: "{{ item.0.threshold | default(omit) }}"
+    sens: "{{ item.0.sensitivity | default(omit) }}"
     token: "{{ nodeping_api_token }}"
     notifications: "{{ nodeping_notifications }}"
   when: item.0.state is not defined or item.0.state == 'present'
