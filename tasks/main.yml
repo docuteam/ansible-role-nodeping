@@ -36,6 +36,9 @@
     username: "{{ item.0.username | default(omit) }}"
     password: "{{ item.0.password | default(omit) }}"
     port: "{{ item.0.port | default(omit) }}"
+    contentstring: "{{ item.0.contentstring | default(omit) }}"
+    invert: "{{ item.0.invert | default(omit) }}"
+    sens: "{{ item.0.sens | default(omit) }}"
     sendheaders:
       Authorization: "{{ ('Basic ' + ((item.0.username + ':' +  item.0.password) | b64encode)) if (item.0.type is not defined and item.0.username is defined) else omit }}"
     follow: yes
