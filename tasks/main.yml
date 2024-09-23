@@ -1,6 +1,6 @@
 ---
 - name: Check that state has a supported value
-  assert:
+  ansible.builtin.assert:
     that:
       - item.state is not defined or item.state == 'present' or item.state == 'absent'
     msg: "'state' must be 'present', 'absent' or undefined"
@@ -18,7 +18,7 @@
 
 - name: Check if check for target is in place
   delegate_to: "localhost"
-  set_fact:
+  ansible.builtin.set_fact:
     result: "{{ retrieved_checks | json_query(query) }}"
   loop: "{{ nodeping_checks }}"
   vars:
