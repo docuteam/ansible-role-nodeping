@@ -524,7 +524,7 @@ def update_nodeping_check(parameters):
     (_, checkclass) = [
         func
         for func in inspect.getmembers(nodepingpy.checktypes)
-        if inspect.isclass(func[1]) and func[0] == classname
+        if inspect.isclass(func[1]) and func[0].upper() == classname.upper()
     ][0]
 
     # websocketdata isn't part of the API but is necessary to get the data in
