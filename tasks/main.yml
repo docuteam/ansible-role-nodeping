@@ -1,6 +1,6 @@
 ---
 - name: Check that state has a supported value
-  assert:
+  ansible.builtin.assert:
     that:
       - item.state is not defined or item.state == 'present' or item.state == 'absent'
     msg: "'state' must be 'present', 'absent' or undefined"
@@ -13,12 +13,12 @@
     action: get
     token: "{{ nodeping_api_token }}"
   register: retrieved_checks
-  run_once: yes
-  changed_when: no
+  run_once: true
+  changed_when: false
 
 - name: Check if check for target is in place
   delegate_to: "localhost"
-  set_fact:
+  ansible.builtin.set_fact:
     result: "{{ retrieved_checks | json_query(query) }}"
   loop: "{{ nodeping_checks }}"
   vars:
@@ -41,8 +41,8 @@
     sens: "{{ item.0.sens | default(omit) }}"
     sendheaders:
       Authorization: "{{ ('Basic ' + ((item.0.username + ':' +  item.0.password) | b64encode)) if (item.0.type is not defined and item.0.username is defined) else omit }}"
-    follow: yes
-    enabled: yes
+    follow: true
+    enabled: true
     interval: 5
     token: "{{ nodeping_api_token }}"
     notifications: "{{ nodeping_notifications }}"
