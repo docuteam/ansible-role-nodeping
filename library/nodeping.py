@@ -514,10 +514,15 @@ def update_nodeping_check(parameters):
     check_id = parameters["checkid"]
     oldresult = nodepingpy.checks.get_by_id(token, check_id, customerid)
     checktype = oldresult["type"]
-   
-    # Sometimes dep is an empty string, set it to False since updating it
-    # may set the value to False
-    if oldresult["dep"] == "":
+
+    # dep is optional in the NodePing API response, set it to False, if
+    # it does not exist, since updating it may set the value to False
+    if "dep" in oldresult:
+        # Sometimes dep is an empty string, set it to False since updating it
+        # may set the value to False
+        if oldresult["dep"] == "":
+            oldresult["dep"] = False
+    else:
         oldresult["dep"] = False
 
     classname = "{}Check".format(checktype.title())
