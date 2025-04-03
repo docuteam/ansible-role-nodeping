@@ -45,7 +45,6 @@
     enabled: true
     interval: "{{ item.0.interval | default(5) }}"
     threshold: "{{ item.0.threshold | default(omit) }}"
-    sens: "{{ item.0.sensitivity | default(omit) }}"
     token: "{{ nodeping_api_token }}"
     notifications: "{{ nodeping_notifications }}"
   when: item.0.state is not defined or item.0.state == 'present'
