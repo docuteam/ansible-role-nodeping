@@ -41,7 +41,7 @@
     sens: "{{ item.0.sens | default(omit) }}"
     sendheaders:
       Authorization: "{{ ('Basic ' + ((item.0.username + ':' +  item.0.password) | b64encode)) if (item.0.type is not defined and item.0.username is defined) else omit }}"
-    follow: "{{ 'true' if (item.0.type is not defined or item.0.type != 'PUSH' ) else omit }}"
+    follow: "{{ true if (item.0.type is not defined or item.0.type != 'PUSH' ) else omit }}"
     enabled: true
     interval: "{{ item.0.interval | default(5) }}"
     threshold: "{{ item.0.threshold | default(omit) }}"
