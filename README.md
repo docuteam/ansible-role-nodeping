@@ -16,9 +16,8 @@ Since we're unable to save IDs in Ansible the label you pass with a check is the
   * `username`: Username for a check. We use it primarly for HTTP checks with basic authentication, but if you provide a `type` which supports `username`, it will work as well.
   * `password`: Password for a check. We use it primarly for HTTP checks with basic authentication, but if you provide a `type` which supports `password`, it will work as well.
   * `port`: Port to use with the check.
-  * `interval`: Interval for the check in minutes. Defaults to 5 minutes.
+  * `interval`: Interval for the check in minutes. Defaults to 5.
   * `threshold`: Timeout for this check in seconds. Defaults to 5.
-  * `sensitivity`: Number of rechecks before sending an alert. Defaults to 2 (which is HIGH in there UI).
   * `state`: State of check. Must be either *present* or *absent*
   * `contentstring`: The string to match the response against. Can be negated with the `invert` parameter.
   * `invert`: Used for 'Does not contain' functionality in checks, in conjunction with `contentstring`. If omitted, defaults to no.
