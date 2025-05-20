@@ -1,6 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-
 # Copyright: (c) 2024, NodePing LLC <support@nodeping.com>
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
@@ -414,7 +411,8 @@ message:
 NODEPING_IMPORT_ERROR = None
 
 try:
-    import nodepingpy
+    from nodepingpy import checks, contacts, contactgroups, notificationprofiles
+    from nodepingpy.nptypes import checktypes
 except ImportError:
     NODEPING_IMPORT_ERROR = traceback.format_exc()
     IMPORTED_NODEPING_API = False
@@ -429,11 +427,11 @@ def get_nodeping_check(parameters):
     checkid = parameters["checkid"]
 
     if checkid and checkid.lower() == "all":
-        result = nodepingpy.checks.get_all(token, customerid)
+        result = checks.get_all(token, customerid)
     elif checkid:
-        result = nodepingpy.checks.get_by_id(token, checkid, customerid)
+        result = checks.get_by_id(token, checkid, customerid)
     elif parameters["label"] and not checkid:
-        get_checks = nodepingpy.checks.get_all(token, customerid)
+        get_checks = checks.get_all(token, customerid)
         for _, value in get_checks.items():
             if value["label"] == parameters["label"]:
                 result = value
@@ -441,7 +439,7 @@ def get_nodeping_check(parameters):
             else:
                 result = {"error": "Check ID label not found"}
     else:
-        result = nodepingpy.checks.get_all(token, customerid)
+        result = checks.get_all(token, customerid)
 
     try:
         result.update({"changed": True})
@@ -461,7 +459,7 @@ def create_nodeping_check(parameters):
     classname = "{}Check".format(checktype)
     (_, checkclass) = [
         func
-        for func in inspect.getmembers(nodepingpy.checktypes)
+        for func in inspect.getmembers(checktypes)
         if inspect.isclass(func[1]) and func[0].upper() == classname.upper()
     ][0]
 
@@ -494,7 +492,7 @@ def create_nodeping_check(parameters):
         if key in check_keys:
             args_dict.update({key: parameters[key]})
 
-    result = nodepingpy.checks.create_check(token, checkclass(**args_dict), customerid)
+    result = checks.create_check(token, checkclass(**args_dict), customerid)
 
     try:
         created = bool(result["created"])
@@ -512,7 +510,7 @@ def update_nodeping_check(parameters):
     label = parameters["label"]
     customerid = parameters["customerid"]
     check_id = parameters["checkid"]
-    oldresult = nodepingpy.checks.get_by_id(token, check_id, customerid)
+    oldresult = checks.get_by_id(token, check_id, customerid)
     checktype = oldresult["type"]
 
     # Sometimes dep is an empty string, set it to False since updating it
@@ -523,7 +521,7 @@ def update_nodeping_check(parameters):
     classname = "{}Check".format(checktype)
     (_, checkclass) = [
         func
-        for func in inspect.getmembers(nodepingpy.checktypes)
+        for func in inspect.getmembers(checktypes)
         if inspect.isclass(func[1]) and func[0].upper() == classname.upper()
     ][0]
 
@@ -556,8 +554,8 @@ def update_nodeping_check(parameters):
         if key in check_keys and parameters[key] is not None:
             args_dict.update({key: parameters[key]})
 
-    updated = nodepingpy.checks.update_check(token, check_id, checktype, args_dict, customerid)
-    newresult = nodepingpy.checks.get_by_id(token, check_id, customerid)
+    updated = checks.update_check(token, check_id, checktype, args_dict, customerid)
+    newresult = checks.get_by_id(token, check_id, customerid)
 
     # Strip out the modified fields before checking. NodePing recognizes a check
     # as changed by simply doing a PUT request for the checkid. We want to check
@@ -585,7 +583,7 @@ def delete_nodeping_check(parameters):
     checkid = parameters["checkid"]
     customerid = parameters["customerid"]
 
-    result = nodepingpy.checks.delete_check(token, checkid, customerid)
+    result = checks.delete_check(token, checkid, customerid)
 
     try:
         result["error"]
@@ -607,7 +605,7 @@ def convert_contacts(notification_contacts, token, customerid):
     for contact in notification_contacts:
         if "name" in contact.keys():
             if not account_contacts:
-                account_contacts = nodepingpy.contacts.get_all(token, customerid)
+                account_contacts = contacts.get_all(token, customerid)
 
             for _, value in account_contacts.items():
                 if contact["name"] == value["name"]:
@@ -623,7 +621,7 @@ def convert_contacts(notification_contacts, token, customerid):
                             ]
         elif "group" in contact.keys():
             if not account_groups:
-                account_groups = nodepingpy.contactgroups.get_all(token, customerid)
+                account_groups = contactgroups.get_all(token, customerid)
 
             for key, value in account_groups.items():
                 if value["name"] == contact["group"] or key == contact["group"]:
@@ -637,7 +635,7 @@ def convert_contacts(notification_contacts, token, customerid):
                     ]
         elif "notificationprofile" in contact.keys():
             if not account_notificationprofiles:
-                account_notificationprofiles = nodepingpy.notificationprofiles.get_all(
+                account_notificationprofiles = notificationprofiles.get_all(
                     token, customerid
                 )
 
