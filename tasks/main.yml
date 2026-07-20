@@ -39,14 +39,18 @@
     contentstring: "{{ item.0.contentstring | default(omit) }}"
     invert: "{{ item.0.invert | default(omit) }}"
     sens: "{{ item.0.sens | default(omit) }}"
-    sendheaders:
-      Authorization: "{{ ('Basic ' + ((item.0.username + ':' +  item.0.password) | b64encode)) if (item.0.type is not defined and item.0.username is defined) else omit }}"
+    sendheaders: "{{ merged_headers if merged_headers | length > 0 else omit }}"
     follow: "{{ true if (item.0.type is not defined or item.0.type != 'PUSH' ) else omit }}"
     enabled: true
     interval: "{{ item.0.interval | default(5) }}"
     threshold: "{{ item.0.threshold | default(omit) }}"
     token: "{{ nodeping_api_token }}"
     notifications: "{{ nodeping_notifications }}"
+  vars:
+    basic_auth: >-
+      {{ {'Authorization': 'Basic ' + ((item.0.username + ':' + item.0.password) | b64encode)}
+         if (item.0.type is not defined and item.0.username is defined) else {} }}
+    merged_headers: "{{ basic_auth | combine(item.0.headers | default({})) }}"
   when: item.0.state is not defined or item.0.state == 'present'
   with_together:
     - "{{ nodeping_checks }}"

@@ -22,6 +22,7 @@ Since we're unable to save IDs in Ansible the label you pass with a check is the
   * `contentstring`: The string to match the response against. Can be negated with the `invert` parameter.
   * `invert`: Used for 'Does not contain' functionality in checks, in conjunction with `contentstring`. If omitted, defaults to no.
   * `sens`: Integer for the number of rechecks before this check is considered 'down' or 'up', possible values are 2, 5, 7, 10. The Sensitivity determines how much the service will recheck a website before concluding it is down. There are five available settings of High (2), Medium (5), Low (7), and Very Low (10). High is generally recommended, but if your website is prone to flapping, you may want to set the Sensitivity lower. If omitted, defaults to 2 (High)
+  * `headers`: A dict of additional HTTP headers to send with the check (e.g. `{"X-Api-Key": "secret"}`). If `username`/`password` are set, an `Authorization` header for Basic auth is generated automatically; a `headers.Authorization` entry here takes precedence over it.
 * `nodeping_notifications`: An array of objects with target to notify. Important: We won't create those, so be sure to manually create them in advance. An object needs to include these values:
   * `contact`: An ID of the contact you want to notify.
   * `notifydelay`: Delay until Nodeping will notify this contact.
