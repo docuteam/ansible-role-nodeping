@@ -29,7 +29,7 @@
   delegate_to: localhost
   nodeping:
     action: "{{ (item.1.ansible_facts.result | length > 0 ) | ternary('update', 'create') }}"
-    checktype: "{{ item.0.type | default(item.0.username is defined | ternary('HTTPADV', 'HTTP')) }}"
+    checktype: "{{ item.0.type | default((item.0.cookie is defined or item.0.username is defined) | ternary('HTTPADV', 'HTTP')) }}"
     checkid: "{{ (item.1.ansible_facts.result | length > 0 ) | ternary(item.1.ansible_facts.result | first, omit) }}"
     target: "{{ item.0.target }}"
     label: "{{ item.0.label }}"
@@ -41,6 +41,7 @@
     sens: "{{ item.0.sens | default(omit) }}"
     sendheaders:
       Authorization: "{{ ('Basic ' + ((item.0.username + ':' +  item.0.password) | b64encode)) if (item.0.type is not defined and item.0.username is defined) else omit }}"
+      Cookie: "{{ ('Cookie ' + item.0.cookie) if (item.0.type is not defined and item.0.cookie is defined) else omit }}"
     follow: true
     enabled: true
     interval: 5
