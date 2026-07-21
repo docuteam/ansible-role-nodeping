@@ -29,7 +29,7 @@
   delegate_to: localhost
   nodeping:
     action: "{{ (item.1.ansible_facts.result | length > 0 ) | ternary('update', 'create') }}"
-    checktype: "{{ item.0.type | default(item.0.username is defined | ternary('HTTPADV', 'HTTP')) }}"
+    checktype: "{{ item.0.type | default((item.0.username is defined or item.0.headers is defined) | ternary('HTTPADV', 'HTTP')) }}"
     checkid: "{{ (item.1.ansible_facts.result | length > 0 ) | ternary(item.1.ansible_facts.result | first, omit) }}"
     target: "{{ item.0.target | default(omit) }}"
     label: "{{ item.0.label }}"
