@@ -12,7 +12,7 @@ Since we're unable to save IDs in Ansible the label you pass with a check is the
 * `nodeping_checks`: An array of objects with checks. An object can have this values:
   * `label` (Required): Display name of the check and "primary" key to check whetever a check has to be created or updated (see above).
   * `target` (Required for all checks except PUSH checks): Target of your check.
-  * `type`: Type of your check. Defaults to either `HTTPADV` if `username` has been provided for basic authentication or else, `HTTP`.
+  * `type`: Type of your check. Defaults to either `HTTPADV` if `username` or `headers` has been provided or else, `HTTP`.
   * `username`: Username for a check. We use it primarly for HTTP checks with basic authentication, but if you provide a `type` which supports `username`, it will work as well.
   * `password`: Password for a check. We use it primarly for HTTP checks with basic authentication, but if you provide a `type` which supports `password`, it will work as well.
   * `port`: Port to use with the check.
@@ -22,6 +22,7 @@ Since we're unable to save IDs in Ansible the label you pass with a check is the
   * `contentstring`: The string to match the response against. Can be negated with the `invert` parameter.
   * `invert`: Used for 'Does not contain' functionality in checks, in conjunction with `contentstring`. If omitted, defaults to no.
   * `sens`: Integer for the number of rechecks before this check is considered 'down' or 'up', possible values are 2, 5, 7, 10. The Sensitivity determines how much the service will recheck a website before concluding it is down. There are five available settings of High (2), Medium (5), Low (7), and Very Low (10). High is generally recommended, but if your website is prone to flapping, you may want to set the Sensitivity lower. If omitted, defaults to 2 (High)
+  * `headers`: A dict of additional HTTP headers to send with the check (e.g. `{"X-Api-Key": "secret"}`). If `username`/`password` are set, an `Authorization` header for Basic auth is generated automatically; a `headers.Authorization` entry here takes precedence over it.
 * `nodeping_notifications`: An array of objects with target to notify. Important: We won't create those, so be sure to manually create them in advance. An object needs to include these values:
   * `contact`: An ID of the contact you want to notify.
   * `notifydelay`: Delay until Nodeping will notify this contact.
